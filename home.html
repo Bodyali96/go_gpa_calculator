@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>{{.PageTitle}}</title>
+    <style>
+        /* @import url(http: //fonts.googleapis.com/css?family=Open+Sans:400,700);
+        @import url(http: //fonts.googleapis.com/css?family=Inconsolata:400); */
+
+        * {
+            text-rendering: optimizelegibility;
+        }
+
+        body,
+        input,
+        textarea,
+        select,
+        button {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        body {
+            background-image: url('https://serving.photos.photobox.com/623219643fda972eafa53810b8e68434bedc9a5243c6a504f6b91dfa605cd003c538b561.jpg');
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" media="screen" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <nav class="navbar">
+        <a class="navbar-brand mx-auto" href="/">
+            <img src="https://serving.photos.photobox.com/68452690d32827b50de8da9281d264494a6013455c77bdc106112adf60005da98fbc55dd.jpg"
+                width="50" height="50" class="d-inline-block" alt="">
+            <label class="badge badge-primary">GPA Calculator</label>
+        </a>
+    </nav>
+    <div class="container">
+        <ul data-bind="foreach: classes">
+            <li>
+                <div class="row">
+                    <div class="col">
+                        <label class="badge badge-info">Course:</label>
+                        <input type="text" data-bind="value: title" placeholder="Course Name" />
+                    </div>
+                    <div class="col">
+                        <label class="badge badge-info">Credit Hours:</label>
+                        <input type="text" data-bind="value: credits" placeholder="Credits" />
+                    </div>
+                    <div class="col">
+                        <label class="badge badge-info">Grade:</label>
+                        <input type="text" data-bind="value: letterGrade" placeholder="Letter Grade" />
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <button class="btn btn-primary" data-bind="click: addClass">Add a Course</button>
+    </div>
+
+    <hr />
+    <div class="container">
+        <input class="btn btn-success" value="Calculate your GPA" onclick="showGPA()"><br>
+    </div>
+
+    <div class="text-center" style="width: 100%">
+        <label class="alert alert-danger" id="gpa" data-bind="text: totalGPA" style="display: none"></label>
+    </div>
+
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-debug.js'></script>
+    <script type="text/javascript">
+        function Class(title, credits, letterGrade) {
+            var self = this;
+            var gradeMapping = {
+                'A+': 4.00,
+                'A': 3.75,
+                'B+': 3.50,
+                'B': 3.00,
+                'C+': 2.50,
+                'C': 2.00,
+                'D+': 1.50,
+                'D': 1.00,
+                'F': 0
+            }
+
+
+            self.title = ko.observable(title);
+            self.credits = ko.observable(credits);
+            self.letterGrade = ko.observable(letterGrade);
+
+            self.gpa = ko.computed(function () {
+                return gradeMapping[self.letterGrade()];
+            });
+        }
+
+        function GpaCalcViewModel() {
+            var self = this;
+            self.classes = ko.observableArray();
+            self.totalGPA = ko.computed(function () {
+                var totalWeightedGPA = 0, totalCredits = 0;
+
+                $.each(self.classes(), function () {
+                    totalWeightedGPA += (this.gpa() * this.credits());
+                    totalCredits += (this.credits() * 1);
+                })
+                totalgpa = totalWeightedGPA / totalCredits;
+                return totalgpa.toFixed(2);
+            });
+
+
+            self.addClass = function () {
+                self.classes.push(new Class());
+            }
+
+
+        };
+
+        var viewModel = new GpaCalcViewModel();
+
+        ko.applyBindings(viewModel);
+        function showGPA() {
+            var x = document.getElementById("gpa");
+            if (x.style.display === "none") {
+                x.style.display = "inline";
+            }
+        }
+    </script>
+</body>
+
+</html>
